@@ -16,7 +16,7 @@ const showUsers = async (req, res) => {
 }
 
 const register = async (req, res) => {
-    const {username, email, password, permission} = req.body;
+    const {username, email, line_id, password, permission} = req.body;
     
     try {
         const query = `SELECT * FROM users WHERE email = ?`;
@@ -29,8 +29,8 @@ const register = async (req, res) => {
 
         const hashedPassword = await bcrypt.hash(password, 10);
         console.log(hashedPassword);
-        const insertUserQuery = `INSERT INTO users (username, email, password, permission) VALUES(?, ?, ?, ?)`;
-        await executeQuery(insertUserQuery, [username, email, hashedPassword, permission]);
+        const insertUserQuery = `INSERT INTO users (username, email, line_id, password, permission) VALUES(?, ?, ?, ?, ?)`;
+        await executeQuery(insertUserQuery, [username, email, line_id, hashedPassword, permission]);
 
         return res.status(201).json({ message: 'User registered successfully'});
 
@@ -63,6 +63,7 @@ const login = async (req, res) => {
                 id: user.id,
                 username: user.username,
                 email: user.email,
+                line_id: user.line_id,
                 permission: user.permission
             }, process.env.JWT_SECRET,
             {

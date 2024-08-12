@@ -5,7 +5,7 @@ const authMiddleware = async (req, res, next) => {
     const token = req.headers['authorization'];
 
     if (!token) {
-        return res.status(403).json({ messaeg: 'Access denied. No token provided'});
+        return res.status(403).json({ message: 'Access denied. No token provided'});
     }
 
      try {

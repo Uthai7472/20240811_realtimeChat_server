@@ -5,6 +5,7 @@ const authRoutes = require('./routes/authRoutes');
 const manageTbRoutes = require('./routes/manageTbRoute');
 const chatRoutes = require('./routes/chatRoutes');
 const protectedRoutes = require('./routes/protectedRoute');
+const friendRoutes = require('./routes/friendRoutes')
 
 dotenv.config();
 
@@ -19,6 +20,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/manage_table', manageTbRoutes);
 app.use('/api/protected', protectedRoutes);
 app.use('/api/protected/chat', chatRoutes);
+app.use('/api/protected/friend', friendRoutes);
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
