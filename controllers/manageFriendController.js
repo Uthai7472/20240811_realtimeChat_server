@@ -32,8 +32,8 @@ const addFriend = async (req, res) => {
 
     try {
         const addQuery = `
-            INSERT INTO friends (user_id, friend_id)
-            VALUES (?, ?)
+            INSERT INTO friends (user_id, friend_id, status)
+            VALUES (?, ?, 'accepted')
         `;
 
         const result = await executeQuery(addQuery, [user_id, friend_id]);
@@ -46,7 +46,45 @@ const addFriend = async (req, res) => {
     }
 }
 
+const showFriends = async (req, res) => {
+    try {
+        const user = req.user;
+        const user_id = user.id;
+
+        // Show friends of this user_id
+        const friendsQuery = `
+            SELECT * FROM friends 
+            WHERE user_id = ?
+        `
+        const resultFriends = await executeQuery(friendsQuery, [user_id]);
+        const friendsData = [];
+
+        for(const friend of resultFriends) {
+            const friend_id = friend.friend_id;
+
+            // Use friend_id to find username him/her
+            const resultFriendData = await executeQuery(`
+                SELECT id, username, email FROM users 
+                WHERE id = ?
+            `, [friend_id]);
+
+            if (resultFriendData.length > 0) {
+                friendsData.push(resultFriendData[0]);
+            }
+        }
+
+        
+
+        console.log('resultFriends data:', friendsData);
+        return res.status(200).json({ friendsData: friendsData });
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({ message: 'Internal server error' });
+    }
+}
+
 module.exports = {
     searchFriend,
-    addFriend
+    addFriend,
+    showFriends
 }
