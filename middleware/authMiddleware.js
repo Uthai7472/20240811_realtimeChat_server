@@ -30,6 +30,7 @@ const verifyToken = (req, res) => {
 
    try {
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
+      console.log('User decoded from verify: ', decoded);
       return res.status(200).json({ valid: true, user: decoded });
 
    } catch (error) {
