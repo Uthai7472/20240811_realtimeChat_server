@@ -9,6 +9,7 @@ const createTbUsers = async (req, res) => {
                 line_id VARCHAR(50) UNIQUE,
                 email VARCHAR(50),
                 password VARCHAR(100),
+                profile_pic VARCHAR(255),
                 permission INT
             )
         `;

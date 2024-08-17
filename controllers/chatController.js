@@ -11,7 +11,7 @@ cloudinary.config({
 
 const insertMessage = async (req, res) => {
     const {message, imageUrl, receiver_id, datetime} = req.body;
-    const user = await req.user;
+    const user = req.user;
     const sender_id = user.id;
 
     console.log("User: ", user);
@@ -47,7 +47,7 @@ const insertMessage = async (req, res) => {
                 VALUES (?, ?, ?, ?, ?)
             `;
         const result = await executeQuery(insertMessageAndImgQuery, [sender_id, receiver_id, message || null, uploadedImageUrl || null, datetime]);
-
+        
         return res.status(201).json({ message: 'Insert message and imageUrl successfully'})
 
     } catch (error) {
