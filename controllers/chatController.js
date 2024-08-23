@@ -1,5 +1,8 @@
 const {executeQuery} = require('../config/database');
 const cloudinary = require('cloudinary').v2;
+const axios = require('axios');
+const FormData = require('form-data');
+const fs = require('fs');
 
 cloudinary.config({
     cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -7,7 +10,8 @@ cloudinary.config({
     api_secret: process.env.CLOUDINARY_API_SECRET
 });
 
-
+// Line Notify Token (replace with your actual token)
+const lineNotifyToken = process.env.LINE_NOTIFY_TOKEN;
 
 const insertMessage = async (req, res) => {
     const {message, imageUrl, receiver_id, datetime} = req.body;
@@ -48,6 +52,50 @@ const insertMessage = async (req, res) => {
             `;
         const result = await executeQuery(insertMessageAndImgQuery, [sender_id, receiver_id, message || null, uploadedImageUrl || null, datetime]);
         
+
+
+        // Send Line Notify
+        if (user.username === 'uthai') {
+            const formData = new FormData();
+            formData.append('message', message || '');
+
+            if (req.file) {
+                formData.append('imageFile', req.file.buffer, {
+                    filename: req.file.originalname,
+                    contentType: req.file.mimetype,
+                });
+            }
+
+            let lineNotifyMessage = `You have a new message from ${user.username}: ${message}`;
+            if (uploadedImageUrl) {
+                lineNotifyMessage += `\nImage: ${uploadedImageUrl}`;
+            }
+
+            await axios.post(
+                'https://notify-api.line.me/api/notify', formData,
+                {
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'Authorization': `Bearer ${lineNotifyToken}`,
+                        ...formData.getHeaders(),
+                    }
+                }
+            );
+
+            // await axios.post(
+            //     'https://notify-api.line.me/api/notify',
+            //     `message=${encodeURIComponent(lineNotifyMessage)}`,
+            //     {
+            //         headers: {
+            //             'Content-Type': 'application/x-www-form-urlencoded',
+            //             'Authorization': `Bearer ${lineNotifyToken}`
+            //         }
+            //     }
+            // );
+
+            console.log('Notification sent to Line Notify successfully');
+        }
+
         return res.status(201).json({ message: 'Insert message and imageUrl successfully'})
 
     } catch (error) {
